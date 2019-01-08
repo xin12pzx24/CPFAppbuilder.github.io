@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+
+<head>
+	<title>CPF-Coaster</title>
+
+	<meta charset="utf-8">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+
+</head>
+
+<body>
+	<div class="container">
+
+		<div id="bg"></div>
+		<!-- 標題 -->
+		<div id="title-edit">
+			<center>
+				<h3>標題設定</h3>
+				<span>第一行：<input type="text" id="title1-value"></input></span><br><br>
+				<span>第二行：<input type="text" id="title2-value"></input></span><br><br>
+				<button onclick="changeTitle()">確認</button>
+			</center>
+		</div>
+
+		<div id="flower-field">
+			<img id="flower" src="./images/flower.png" />
+		</div>
+
+		<div id="font-field">
+			<font id="title1">平安喜樂</font><br>
+			<font id="title2">平安喜樂</font>
+		</div>
+		<!---------->
+
+		<!-- 物品 -->
+		<div id="item-edit">
+			<center>
+				<img onclick="changeItem('cup', 5)" src="./images/item1.png" />
+				<img onclick="changeItem('bowl', 5)" src="./images/item2.png" />
+				<img onclick="changeItem('milk', 6)" src="./images/item3.png" />
+			</center>
+		</div>
+
+		<div id="item-field">
+			<img id="item-img" src="./images/cup.png">
+		</div>
+		<!---------->
+
+		<!-- 數值 -->
+		<div id="value-field">
+			<img class="value-icon" src="./images/temperature.png" />
+			<span id="temp" class="value-number">70℃</span><br>
+			<img class="value-icon2" src="./images/weighing.png" />
+			<span id="weight" class="value-number2">1234 公克</span>
+		</div>
+		<!---------->
+
+		<!-- 容量 -->
+		<div id="cup-field">
+			<img class="cup-icon" src="./images/cup_full.png" />
+			<img class="cup-icon" src="./images/cup_full.png" />
+			<img class="cup-icon" src="./images/cup_full.png" />
+			<img class="cup-icon" src="./images/cup_full.png" />
+			<img class="cup-icon" src="./images/cup_full.png" />
+		</div>
+		<span class="cup-value" id="cup_value">
+			<font color="#3CB9A6" id="total">1600</font> ml
+		</span>
+		<!---------->
+
+	</div>
+
+	<script>
+
+		cpf.pinreset("[\"resetPin\"],[\"setPinMode\", \"analog\", 0,\"INPUT\"],[\"setPinMode\", \"analog\",1,\"INPUT\"],[\"setPinMode\", \"digital\", 3,\"PWM\"],[\"setPinMode\", \"digital\", 5,\"PWM\"],[\"setPinMode\", \"digital\", 6,\"PWM\"],[\"setPinMode\", \"digital\", 9,\"PWM\"],[\"setPinMode\", \"digital\", 10,\"PWM\"],[\"setPinMode\", \"digital\", 11,\"PWM\"],[\"setPinMode\", \"digital\", 7,\"INPUT\"],[\"servo_init\",4, 90, 500, 2400]");
+
+		//cpf.uireset("[\"uiresetPin\"],[\"analog\", 0,\"INPUT\",\"搖桿裝置 XY方向\",\"img-Joystick\"],[\"digital\", 3,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 5,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 6,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 9,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 10,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 11,\"PWM\",\" PWM信號\",\"img-analog_write\"],[\"digital\", 7,\"INPUT\",\"按鈕裝置\",\"img-button\"],[\"servo_init\", 4,\"OUTPUT\",\"180度伺服馬達 \",\"img-servo_move\"]");
+
+		var JoystickData, joystick, btn;
+
+		function JoystickGetValue() {
+			var JoystickData = cpf.get("JOYSTICK", "A0");
+			var data = JSON.parse(JoystickData);
+			X = data[0];
+			Y = data[1];
+			//ui.set("A0", "X", X);
+			//ui.set("A0", "Y", Y);
+			return JoystickData;
+		}
+
+		function JsonJoyStickData_X(JoystickData) {
+			var data = JSON.parse(JoystickData);
+			X = data[0];
+			return X;
+		}
+
+		function JsonJoyStickData_Y(JoystickData) {
+			var data = JSON.parse(JoystickData);
+			Y = data[1];
+			return Y;
+		}
+
+		function ButtonSwitchGet_D7() {
+			var ButtonSwitchGetValue = cpf.get("D7");
+			//ui.set("D7", ButtonSwitchGetValue);
+			return ButtonSwitchGetValue;
+		}
+
+
+		function cpf_loop() {
+			while (cpf.isForeground() == true) {
+				JoystickData = JoystickGetValue();
+				JoystickData = JsonJoyStickData_X(JoystickData);
+				JoystickData = JsonJoyStickData_Y(JoystickData);
+				joystick = JsonJoyStickData_X(JoystickData);
+				if (joystick < 100) {
+					cpf.set("D3", "pwm", 255);
+				}
+
+				cpf.set("D5", "pwm", 0);
+				cpf.set("D6", "pwm", 255);	//ui.get("D6")
+				cpf.set("D9", "pwm", 0);	//ui.get("D9"));
+				cpf.set("D10", "pwm", 0);	//ui.get("D10"));
+				cpf.set("D11", "pwm", 0);	//ui.get("D11"));
+				btn = ButtonSwitchGet_D7();
+				cpf.set("Servo180", "D4", 0 , 0);//ui.get("D4")
+
+				cpf.sleep(1);
+			}
+		}
+
+		//ui.set("D3", "pwm", 255);
+		//ui.set("Servo180", "D4", ui.get("D4"), 0);
+		//ui.set("D5", "pwm", 0);
+		//ui.set("D6", "pwm", ui.get("D6"));
+		//ui.set("D9", "pwm", ui.get("D9"));
+		//ui.set("D10", "pwm", ui.get("D10"));
+		//ui.set("D11", "pwm", ui.get("D11"));
+
+		//false ? null : null;
+
+		cpf_loop();
+
+	</script>
+
+</body>
+
+</html>
